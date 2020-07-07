@@ -3,4 +3,3 @@ channels:
   - defaults
 dependencies:
   - tensorflow=2.2
-  - tensorflow-datasets

@@ -3,4 +3,3 @@ channels:
   - defaults
 dependencies:
   - tensorflow-gpu=2.2
-  - tensorflow-datasets
