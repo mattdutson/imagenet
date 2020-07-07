@@ -1,5 +1,6 @@
 name: imagenet
 channels:
   - defaults
- dependencies:
+dependencies:
   - tensorflow=2.2
+  - tensorflow-datasets
