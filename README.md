@@ -4,7 +4,7 @@ TensorFlow 2 implementation of MobileNet (based on https://arxiv.org/abs/1704.04
 
 ## Conda Environment
 
-To create the `imagenet` environment, run:
+To create the `mobilenet` environment, run:
 ```
 conda env create -f environment.yml
 ```
