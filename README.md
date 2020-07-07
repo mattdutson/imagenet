@@ -1,6 +1,6 @@
-# imagenet
+# mobilenet
 
-TensorFlow 2 implementations of ImageNet models
+TensorFlow 2 implementation of MobileNet (based on https://arxiv.org/abs/1704.04861) 
 
 ## Conda Environment
 
