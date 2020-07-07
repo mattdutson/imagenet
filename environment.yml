@@ -1,0 +1,5 @@
+name: imagenet
+channels:
+  - defaults
+ dependencies:
+  - tensorflow=2.2
