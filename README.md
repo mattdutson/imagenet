@@ -4,11 +4,9 @@ TensorFlow 2 implementation of MobileNet (based on https://arxiv.org/abs/1704.04
 
 ## ImageNet 2012 Data
 
-Download the training and validation data from [Academic Torrents](https://academictorrents.com/collection/imagenet-2012). Note that ImageNet does permit peer-to-peer distribution of the data provided you first agree to their terms and conditions (see [image-net.org/download-faq](http://image-net.org/download-faq)). Academic Torrents will require you to check a box indicating that you agree to the ImageNet terms and conditions before it allows you to download.
+Download the training and validation `.tar` files from https://academictorrents.com/collection/imagenet-2012. Note that ImageNet *does* permit peer-to-peer distribution of the data provided all parties agree to their terms and conditions (see http://image-net.org/download-faq). Academic Torrents will require you to check a box indicating that you agree to the ImageNet terms and conditions before it allows you to download.
 
-Place the downloaded `.tar` files in the `imagenet` folder. Extract the archives by running the `./extract.sh` Bash script from the `imagenet` folder.
-
-`imagenet/synets.txt` and `imagenet/val_labels.txt` were taken from the public [TensorFlow models repository](https://github.com/tensorflow/models/blob/master/research/inception/inception/data).
+Place the downloaded `.tar` files in `~/tensorflow_datasets/downloads/manual` (see https://www.tensorflow.org/datasets/catalog/imagenet2012).
 
 ## Conda Environment
 

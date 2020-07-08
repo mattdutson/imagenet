@@ -2,4 +2,8 @@ name: mobilenet
 channels:
   - defaults
 dependencies:
+  - pip
+  - python
   - tensorflow=2.2
+  - pip:
+    - tensorflow-datasets==3.1
