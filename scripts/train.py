@@ -35,7 +35,7 @@ def train(args):
                 initial_epoch = epoch
                 checkpoint = filename
         if checkpoint is not None:
-            model.load_weights(checkpoint)
+            model.load_weights(path.join(args.checkpoint_dir, checkpoint))
 
     train_data, train_steps = load_imagenet('train', tuple(args.size))
     val_data, val_steps = load_imagenet('val', tuple(args.size))
@@ -82,7 +82,7 @@ def train(args):
         base = path.splitext(path.basename(filename))[0]
         pieces = base.split('_')
         if args.name == '_'.join(pieces[:-1]):
-            os.remove(filename)
+            os.remove(path.join(args.checkpoint_dir, filename))
 
 
 def _ensure_exists(dirname):
