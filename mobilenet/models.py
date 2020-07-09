@@ -6,7 +6,6 @@ class MobileNet(Sequential):
     def __init__(
             self,
             input_size=(224, 224),
-            final_relu=False,
             pool_bn_relu=False,
             n_classes=1000):
         super(MobileNet, self).__init__()
@@ -48,8 +47,6 @@ class MobileNet(Sequential):
 
         self.add(Flatten())
         self.add(Dense(n_classes))
-        if final_relu:
-            self.add(ReLU())
         self.add(Softmax())
 
     def _add_bn_relu(self):

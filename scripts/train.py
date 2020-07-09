@@ -15,9 +15,7 @@ from mobilenet.models import MobileNet
 
 def train(args):
     model = MobileNet(
-        input_size=tuple(args.size),
-        final_relu=args.final_relu,
-        pool_bn_relu=args.pool_bn_relu)
+        input_size=tuple(args.size), pool_bn_relu=args.pool_bn_relu)
 
     _ensure_exists(args.checkpoint_dir)
 
@@ -122,10 +120,6 @@ if __name__ == '__main__':
         help='A file from which the model weights should be loaded. '
              'This disables any automatic checkpoint loading.')
 
-    parser.add_argument(
-        '-f', '--final-relu', action='store_true',
-        help='Whether to add a ReLU layer after the final dense layer '
-             '(before softmax).')
     parser.add_argument(
         '-p', '--pool-bn-relu', action='store_true',
         help='Whether to add batch norm and ReLU layers after average '
