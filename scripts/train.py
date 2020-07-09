@@ -67,6 +67,7 @@ def train(args):
     model.fit(
         x=train_data,
         epochs=args.epochs,
+        verbose=args.verbosity,
         callbacks=callbacks,
         validation_data=val_data,
         initial_epoch=initial_epoch,
@@ -145,6 +146,10 @@ if __name__ == '__main__':
         help='The name of the optimizer (case-sensitive). See the '
              'classes listed in the tf.keras.optimizers documentation '
              'for a list of acceptable values.')
+    parser.add_argument(
+        'v', '--verbosity', type=int, default=2, choices=[0, 1, 2],
+        help='Information to print during training. 0 = silent, '
+             '1 = progress bar, 2 = one line per epoch.')
 
     # This strategy splits batches over the available GPUs
     with tf.distribute.MirroredStrategy().scope():
