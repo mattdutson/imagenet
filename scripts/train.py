@@ -147,7 +147,7 @@ if __name__ == '__main__':
              'classes listed in the tf.keras.optimizers documentation '
              'for a list of acceptable values.')
     parser.add_argument(
-        '-v', '--verbosity', type=int, default=1, choices=[0, 1, 2],
+        '-v', '--verbosity', default=1, type=int, choices=[0, 1, 2],
         help='Information to print during training. 0 = silent, '
              '1 = progress bar, 2 = one line per epoch.')
 
