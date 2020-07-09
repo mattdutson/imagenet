@@ -22,7 +22,7 @@ def load_imagenet(split, size=(224, 224)):
                 .prefetch(N_PREFETCH)
                 .batch(BATCH_SIZE))
 
-    if split in ('train', 'val'):
+    if split in ['train', 'val']:
         full, info = tfds.load('imagenet2012', split='train', with_info=True)
         n_train = info.splits['train'].num_examples - N_VAL
         if split == 'train':
