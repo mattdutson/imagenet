@@ -122,7 +122,7 @@ if __name__ == '__main__':
              'This disables any automatic checkpoint loading.')
 
     parser.add_argument(
-        '-B', '--bn-relu-everywhere', action='store_true',
+        '-b', '--bn-relu-everywhere', action='store_true',
         help='Whether to add BN + ReLU blocks after average pooling '
              'and the final dense layer.')
     parser.add_argument(
@@ -147,4 +147,6 @@ if __name__ == '__main__':
              'classes listed in the tf.keras.optimizers documentation '
              'for a list of acceptable values.')
 
-    train(parser.parse_args())
+    # This strategy splits batches over the available GPUs
+    with tf.distribute.MirroredStrategy().scope():
+        train(parser.parse_args())
