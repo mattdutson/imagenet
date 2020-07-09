@@ -6,10 +6,9 @@ class MobileNet(Sequential):
     def __init__(
             self,
             input_size=(224, 224),
-            bn_relu_everywhere=False,
+            final_relu=False,
+            pool_bn_relu=False,
             n_classes=1000):
-        self.bn_relu_everywhere = bn_relu_everywhere
-
         super(MobileNet, self).__init__()
 
         self.add(Conv2D(
@@ -44,13 +43,13 @@ class MobileNet(Sequential):
 
         self.add(AveragePooling2D(
             pool_size=(input_size[0] // 32, input_size[1] // 32)))
-        if bn_relu_everywhere:
+        if pool_bn_relu:
             self._add_bn_relu()
 
         self.add(Flatten())
         self.add(Dense(n_classes))
-        if bn_relu_everywhere:
-            self._add_bn_relu()
+        if final_relu:
+            self.add(ReLU())
         self.add(Softmax())
 
     def _add_bn_relu(self):
