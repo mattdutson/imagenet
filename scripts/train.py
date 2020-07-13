@@ -15,7 +15,7 @@ from mobilenet.models import MobileNet
 
 def train(args):
     model = MobileNet(
-        input_size=tuple(args.size), pool_bn_relu=args.pool_bn_relu)
+        input_size=tuple(args.size), l2_decay=args.l2_decay)
 
     _ensure_exists(args.checkpoint_dir)
 
@@ -122,19 +122,13 @@ if __name__ == '__main__':
              'This disables any automatic checkpoint loading.')
 
     parser.add_argument(
-        '-p', '--pool-bn-relu', action='store_true',
-        help='Whether to add batch norm and ReLU layers after average '
-             'pooling.')
-    parser.add_argument(
-        '-s', '--size', nargs=2, default=[224, 224], type=int,
-        help='The height and width (in that order) to which ImageNet '
-             'images should be resized.')
-
+        '-d', '--l2-decay', default=0.0, type=float,
+        help='The amount of L2 weight decay to add to the loss.')
     parser.add_argument(
         '-e', '--epochs', default=50, type=int,
         help='The number of training epochs.')
     parser.add_argument(
-        '-l', '--learning-rates', nargs='+', default=[0.001], type=float,
+        '-l', '--learning-rates', nargs='+', default=[1e-3], type=float,
         help='A list of one or more learning rate values.')
     parser.add_argument(
         '-L', '--learning-rate-boundaries', nargs='*', default=[], type=int,
@@ -146,6 +140,10 @@ if __name__ == '__main__':
         help='The name of the optimizer (case-sensitive). See the '
              'classes listed in the tf.keras.optimizers documentation '
              'for a list of acceptable values.')
+    parser.add_argument(
+        '-s', '--size', nargs=2, default=[224, 224], type=int,
+        help='The height and width (in that order) to which ImageNet '
+             'images should be resized.')
     parser.add_argument(
         '-v', '--verbosity', default=1, type=int, choices=[0, 1, 2],
         help='Information to print during training. 0 = silent, '
