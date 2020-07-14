@@ -16,7 +16,8 @@ def load_imagenet(split, size=(224, 224)):
         return image, label
 
     def _prepare(dataset):
-        return (dataset
+        return (
+            dataset
                 .map(_map)
                 .repeat()
                 .prefetch(N_PREFETCH)

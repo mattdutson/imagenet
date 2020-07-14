@@ -10,15 +10,13 @@ from tensorflow.keras.callbacks import *
 from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
 
 from mobilenet.datasets import load_imagenet
-from mobilenet.models import MobileNet
+from mobilenet.models import mobilenet
 
 
 def train(args):
-    model = MobileNet(
-        input_size=tuple(args.size), l2_decay=args.l2_decay)
+    model = mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
 
     _ensure_exists(args.checkpoint_dir)
-
     initial_epoch = 0
     if args.weight_file is not None:
         model.load_weights(args.weight_file)
