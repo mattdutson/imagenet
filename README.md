@@ -1,6 +1,6 @@
 # mobilenet
 
-TensorFlow 2 implementation of MobileNet (based on https://arxiv.org/abs/1704.04861)
+TensorFlow 2 implementation of MobileNet (see https://arxiv.org/abs/1704.04861)
 
 ## ImageNet 2012 Data
 
