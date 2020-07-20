@@ -7,6 +7,7 @@ from datetime import datetime
 
 import tensorflow as tf
 from tensorflow.keras.callbacks import *
+from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
 
 from mobilenet.datasets import load_imagenet
@@ -14,12 +15,19 @@ from mobilenet.models import mobilenet
 
 
 def train(args):
-    model = mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
-
     _ensure_exists(args.checkpoint_dir)
+
     initial_epoch = 0
-    if args.weight_file is not None:
-        model.load_weights(args.weight_file)
+    need_compile = True
+    need_learning_rate = True
+
+    if args.model_file is not None:
+        model = load_model(args.model_file)
+        need_compile = False
+    elif args.weight_file is not None:
+        model = mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
+        if args.weight_file is not None:
+            model.load_weights(args.weight_file)
     else:
         checkpoint = None
         for filename in os.listdir(args.checkpoint_dir):
@@ -32,30 +40,38 @@ def train(args):
                 initial_epoch = epoch
                 checkpoint = filename
         if checkpoint is not None:
-            model.load_weights(path.join(args.checkpoint_dir, checkpoint))
+            model = load_model(path.join(args.checkpoint_dir, checkpoint))
+            need_compile = False
+            need_learning_rate = False
+        else:
+            model = mobilenet(
+                input_size=tuple(args.size),
+                l2_decay=args.l2_decay)
 
     train_data, train_steps = load_imagenet('train', tuple(args.size))
     val_data, val_steps = load_imagenet('val', tuple(args.size))
 
-    optimizer_class = getattr(tf.keras.optimizers, args.optimizer)
-    if len(args.learning_rates) > 1:
-        learning_rate = PiecewiseConstantDecay(
-            [x * train_steps for x in args.learning_rate_boundaries],
-            args.learning_rates)
-    else:
-        learning_rate = args.learning_rates[0]
-    optimizer = optimizer_class(learning_rate=learning_rate)
+    if need_compile:
+        model.compile(
+            optimizer=getattr(tf.keras.optimizers, args.optimizer)(),
+            loss='categorical_crossentropy',
+            metrics=['accuracy', 'top_k_categorical_accuracy'])
 
-    model.compile(
-        optimizer=optimizer,
-        loss='categorical_crossentropy',
-        metrics=['accuracy', 'top_k_categorical_accuracy'])
+    if need_learning_rate:
+        if len(args.learning_rates) > 1:
+            model.optimizer.learning_rate = PiecewiseConstantDecay(
+                [x * train_steps for x in args.learning_rate_boundaries],
+                args.learning_rates)
+        else:
+            model.optimizer.learning_rate = args.learning_rates[0]
 
     best_filename = path.join(args.checkpoint_dir, args.name + '_best.h5')
     callbacks = [
         ModelCheckpoint(
-            path.join(args.checkpoint_dir, args.name + '_{epoch:d}.h5')),
-        ModelCheckpoint(best_filename, save_best_only=True)]
+            path.join(args.checkpoint_dir, args.name + '_{epoch:d}.h5'),
+            save_weights_only=False),
+        ModelCheckpoint(
+            best_filename, save_best_only=True, save_weights_only=False)]
     if args.tensorboard_dir != '':
         _ensure_exists(args.tensorboard_dir)
         now_str = datetime.now().strftime('_%Y-%m-%d_%H-%M-%S')
@@ -73,9 +89,10 @@ def train(args):
         validation_steps=val_steps)
 
     _ensure_exists(args.model_dir)
-    model.load_weights(best_filename)
+    model = load_model(best_filename)
     model.save(path.join(args.model_dir, args.name + '.h5'))
 
+    # Remove checkpoints if training completes successfully
     for filename in os.listdir(args.checkpoint_dir):
         base = path.splitext(path.basename(filename))[0]
         pieces = base.split('_')
@@ -106,6 +123,12 @@ if __name__ == '__main__':
     parser.add_argument(
         '-C', '--checkpoint-dir', default='checkpoints',
         help='The directory for saving and loading checkpoints.')
+    parser.add_argument(
+        '-m', '--model-file',
+        help='A file from which the entire model (including the '
+             'optimizer state) should be loaded. This disables any'
+             'automatic checkpoint loading and results in the '
+             '-o/--optimizer option being ignored.')
     parser.add_argument(
         '-M', '--model-dir', default='models',
         help='The directory where the final model should be saved.')
