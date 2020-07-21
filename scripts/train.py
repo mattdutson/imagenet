@@ -18,35 +18,31 @@ def train(args):
     _ensure_exists(args.checkpoint_dir)
 
     initial_epoch = 0
-    need_compile = True
-    need_learning_rate = True
+    checkpoint = None
+    for filename in os.listdir(args.checkpoint_dir):
+        base = path.splitext(path.basename(filename))[0]
+        pieces = base.split('_')
+        if pieces[-1] == 'best':
+            continue
+        epoch = int(pieces[-1])
+        if args.name == '_'.join(pieces[:-1]) and epoch > initial_epoch:
+            initial_epoch = epoch
+            checkpoint = filename
 
-    if args.model_file is not None:
+    if checkpoint is not None:
+        model = load_model(path.join(args.checkpoint_dir, checkpoint))
+        need_compile = False
+        need_learning_rate = False
+    elif args.model_file is not None:
         model = load_model(args.model_file)
         need_compile = False
-    elif args.weight_file is not None:
+        need_learning_rate = True
+    else:
         model = mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
         if args.weight_file is not None:
             model.load_weights(args.weight_file)
-    else:
-        checkpoint = None
-        for filename in os.listdir(args.checkpoint_dir):
-            base = path.splitext(path.basename(filename))[0]
-            pieces = base.split('_')
-            if pieces[-1] == 'best':
-                continue
-            epoch = int(pieces[-1])
-            if args.name == '_'.join(pieces[:-1]) and epoch > initial_epoch:
-                initial_epoch = epoch
-                checkpoint = filename
-        if checkpoint is not None:
-            model = load_model(path.join(args.checkpoint_dir, checkpoint))
-            need_compile = False
-            need_learning_rate = False
-        else:
-            model = mobilenet(
-                input_size=tuple(args.size),
-                l2_decay=args.l2_decay)
+        need_compile = True
+        need_learning_rate = True
 
     train_data, train_steps = load_imagenet('train', tuple(args.size))
     val_data, val_steps = load_imagenet('val', tuple(args.size))
@@ -126,9 +122,8 @@ if __name__ == '__main__':
     parser.add_argument(
         '-m', '--model-file',
         help='A file from which the entire model (including the '
-             'optimizer state) should be loaded. This disables any'
-             'automatic checkpoint loading and results in the '
-             '-o/--optimizer option being ignored.')
+             'optimizer state) should be loaded. This is ignored when '
+             'training is automatically resumed from a checkpoint.')
     parser.add_argument(
         '-M', '--model-dir', default='models',
         help='The directory where the final model should be saved.')
@@ -140,7 +135,9 @@ if __name__ == '__main__':
     parser.add_argument(
         '-w', '--weight-file',
         help='A file from which the model weights should be loaded. '
-             'This disables any automatic checkpoint loading.')
+             'This disables any automatic checkpoint loading. This is '
+             'ignored when training is automatically resumed from a '
+             'checkpoint.')
 
     parser.add_argument(
         '-d', '--l2-decay', default=0.0, type=float,
