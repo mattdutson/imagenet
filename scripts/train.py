@@ -16,6 +16,7 @@ from mobilenet.utils import ensure_exists
 
 
 def train(args):
+    tf.random.set_seed(0)
     ensure_exists(args.checkpoint_dir)
 
     initial_epoch = 0
@@ -45,8 +46,9 @@ def train(args):
         need_compile = True
         need_learning_rate = True
 
-    train_data, train_steps = load_imagenet('train', tuple(args.size))
-    val_data, val_steps = load_imagenet('val', tuple(args.size))
+    train_data, train_steps = load_imagenet(
+        'train', tuple(args.size), augment=args.augment)
+    val_data, val_steps = load_imagenet('val', tuple(args.size), augment=False)
 
     if need_compile:
         model.compile(
@@ -135,6 +137,9 @@ if __name__ == '__main__':
              'ignored when training is automatically resumed from a '
              'checkpoint.')
 
+    parser.add_argument(
+        '-a', '--augment', action='store_true',
+        help='Apply data augmentation to training images.')
     parser.add_argument(
         '-d', '--l2-decay', default=0.0, type=float,
         help='The amount of L2 weight decay to add to the loss.')

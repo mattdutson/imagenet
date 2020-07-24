@@ -11,9 +11,10 @@ from mobilenet.utils import ensure_exists
 
 
 def save_examples(args):
+    tf.random.set_seed(0)
     ensure_exists(args.examples_dir)
 
-    data, _ = load_imagenet(args.split, tuple(args.size))
+    data, _ = load_imagenet(args.split, tuple(args.size), augment=args.augment)
     for i, item in enumerate(data.unbatch()):
         if i >= args.n_examples:
             break
@@ -40,6 +41,11 @@ if __name__ == '__main__':
              'corresponding to their split ("train", "val", or '
              '"test").')
 
+    parser.add_argument(
+        '-a', '--augment', action='store_true',
+        help='Apply data augmentation. During actual training this '
+             'should only be done with training-set images. Here it '
+             'can be done with any split.')
     parser.add_argument(
         '-n', '--n-examples', default=20, type=int,
         help='The number of examples to save.')
