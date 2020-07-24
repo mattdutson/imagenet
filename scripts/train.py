@@ -12,10 +12,11 @@ from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
 
 from mobilenet.datasets import load_imagenet
 from mobilenet.models import mobilenet
+from mobilenet.utils import ensure_exists
 
 
 def train(args):
-    _ensure_exists(args.checkpoint_dir)
+    ensure_exists(args.checkpoint_dir)
 
     initial_epoch = 0
     checkpoint = None
@@ -69,7 +70,7 @@ def train(args):
         ModelCheckpoint(
             best_filename, save_best_only=True, save_weights_only=False)]
     if args.tensorboard_dir != '':
-        _ensure_exists(args.tensorboard_dir)
+        ensure_exists(args.tensorboard_dir)
         now_str = datetime.now().strftime('_%Y-%m-%d_%H-%M-%S')
         callbacks.append(TensorBoard(
             log_dir=path.join(args.tensorboard_dir, args.name + now_str)))
@@ -84,7 +85,7 @@ def train(args):
         steps_per_epoch=train_steps,
         validation_steps=val_steps)
 
-    _ensure_exists(args.model_dir)
+    ensure_exists(args.model_dir)
     model = load_model(best_filename)
     model.save(path.join(args.model_dir, args.name + '.h5'))
 
@@ -94,11 +95,6 @@ def train(args):
         pieces = base.split('_')
         if args.name == '_'.join(pieces[:-1]):
             os.remove(path.join(args.checkpoint_dir, filename))
-
-
-def _ensure_exists(dirname):
-    if not path.isdir(dirname):
-        os.makedirs(dirname)
 
 
 if __name__ == '__main__':
@@ -160,8 +156,8 @@ if __name__ == '__main__':
              'for a list of acceptable values.')
     parser.add_argument(
         '-s', '--size', nargs=2, default=[224, 224], type=int,
-        help='The height and width (in that order) to which ImageNet '
-             'images should be resized.')
+        help='The height and width (in that order) to which images '
+             'should be resized.')
     parser.add_argument(
         '-v', '--verbosity', default=1, type=int, choices=[0, 1, 2],
         help='Information to print during training. 0 = silent, '
