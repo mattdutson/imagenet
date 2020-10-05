@@ -2,8 +2,20 @@ from tensorflow.keras import Sequential
 from tensorflow.keras.layers import *
 from tensorflow.keras.regularizers import l2
 
+from mobilenet.dataset import N_CLASSES
 
-def build_mobilenet(input_size=(224, 224), l2_decay=0.0, n_classes=1000):
+
+def build_mobilenet(input_size=(320, 320), l2_decay=0.0):
+    """
+    Builds the MobileNet model.
+
+    :param tuple input_size: The height and width (in that order) of the
+        model input.
+    :param float l2_decay: The amount of L2 weight decay to add to the
+        loss. Applies only to kernels, not biases.
+    :return tensorflow.keras.Sequential: A MobileNet model.
+    """
+
     model = Sequential()
 
     def _add_bn_relu():
@@ -56,7 +68,7 @@ def build_mobilenet(input_size=(224, 224), l2_decay=0.0, n_classes=1000):
     model.add(AveragePooling2D(pool_size=(input_size[0] // 32, input_size[1] // 32)))
 
     model.add(Flatten())
-    model.add(Dense(n_classes, kernel_regularizer=l2(l=l2_decay)))
+    model.add(Dense(N_CLASSES, kernel_regularizer=l2(l=l2_decay)))
     model.add(Softmax())
 
     return model

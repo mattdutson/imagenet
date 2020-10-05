@@ -15,7 +15,18 @@ SATURATION_MIN = 0.8
 SATURATION_MAX = 1.0 / 0.8
 
 
-def load_imagenet(split, size=(224, 224), augment=False):
+def load_imagenet(split, size=(320, 320), augment=False):
+    """
+    Loads a split of the ImageNet dataset.
+
+    :param string split: Should be 'train', 'test', or 'val'.
+    :param tuple size: The height and width (in that order) to which
+        images should be resized.
+    :param bool augment: Whether to apply data augmentation.
+    :return (tensorflow.data.Dataset, int): The dataset split and number
+        of batches in the split.
+    """
+
     def _map(item):
         # float32 is better behaved during augmentation
         image = tf.image.convert_image_dtype(item['image'], tf.float32)

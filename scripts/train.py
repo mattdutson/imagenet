@@ -143,7 +143,8 @@ if __name__ == '__main__':
         help='Do not apply data augmentation to training images.')
     parser.add_argument(
         '-d', '--l2-decay', default=1e-3, type=float,
-        help='The amount of L2 weight decay to add to the loss.')
+        help='The amount of L2 weight decay to add to the loss. '
+             'Applies only to kernels, not biases.')
     parser.add_argument(
         '-e', '--epochs', default=90, type=int,
         help='The number of training epochs.')

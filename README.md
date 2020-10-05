@@ -1,12 +1,12 @@
 # mobilenet
 
-TensorFlow 2 implementation of MobileNet (see https://arxiv.org/abs/1704.04861)
+TensorFlow 2 implementation of [MobileNet](https://arxiv.org/abs/1704.04861).
 
-## ImageNet 2012 Data
+## Data Download
 
-Download the training and validation `.tar` files from https://academictorrents.com/collection/imagenet-2012. Note that ImageNet *does* permit peer-to-peer distribution of the data provided all parties agree to their terms and conditions (see http://image-net.org/download-faq). Academic Torrents will require you to check a box indicating that you agree to the ImageNet terms and conditions before it allows you to download.
+Download the training and validation `.tar` files from [Academic Torrents](https://academictorrents.com/collection/imagenet-2012). Note that ImageNet *does* permit peer-to-peer distribution of the data provided all parties agree to their terms and conditions (see http://image-net.org/download-faq). Academic Torrents will require you to check a box indicating that you agree to the ImageNet terms and conditions before it allows you to download.
 
-Place the downloaded `.tar` files in `~/tensorflow_datasets/downloads/manual` (see https://www.tensorflow.org/datasets/catalog/imagenet2012).
+Place the downloaded `.tar` files in `~/tensorflow_datasets/downloads/manual` (see the [TensorFlow Datasets documentation](https://www.tensorflow.org/datasets/catalog/imagenet2012)).
 
 ## Conda Environment
 
@@ -21,6 +21,41 @@ To enable GPU acceleration, instead run:
 conda env create -f environment_gpu.yml
 ```
 This requires that NVIDIA drivers and CUDA 10.1 be installed (see the [TensorFlow GPU guide](https://www.tensorflow.org/install/gpu)).
+
+After creating one of the above environments, activate it with `conda activate mobilenet`.
+
+## Python API
+
+The Python API is defined in the `mobilenet` package and contains two functions: `dataset.load_imagenet` and `model.build_mobilenet`. Details of arguments and outputs are described in the docstrings.
+
+Example usage of `dataset.load_imagenet`:
+```python
+from mobilenet.dataset import load_imagenet
+
+# "data" is a tf.data.Dataset, "n_batches" is an integer
+data, n_batches = load_imagenet(
+    'train',  # Can be 'train', 'test', or 'val'
+    size=(320, 320),
+    augment=True)
+```
+
+Example usage of `model.build_mobilenet`:
+```python
+from mobilenet.model import build_mobilenet
+
+# "model" is a tf.keras.Sequential model
+model = build_mobilenet(input_size=(320, 320), l2_decay=1e-3)
+```
+
+## Command-Line Interface
+
+The `scripts` subdirectory contains scripts for training (`train.py`), evaluating performance (`test.py`), and saving example input images (`examples.py`). These scripts package the `mobilenet` Python API into a convenient user interface. The full list of options to each script can be viewed with `-h/--help`. For example:
+```
+./scripts/train.py -h
+```
+Note that the working directory is the parent directory of `scripts`; this is required in order for Python to find the `mobilenet` package.
+
+`train.py` has a number of options for training hyperparameters (learning rate, optimizer, data augmentation...). The default values were chosen experimentally and should give reasonably high accuracy. That said, feel free to tune them as needed!
 
 ## Commit Guidelines
 
