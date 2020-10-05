@@ -24,9 +24,8 @@ def load_imagenet(split, size=(224, 224), augment=False):
             image = tf.image.random_flip_left_right(image)
             image = tf.image.random_brightness(image, BRIGHTNESS_DELTA)
             image = tf.image.random_contrast(image, CONTRAST_MIN, CONTRAST_MAX)
-            image = tf.image.random_hue(image, 0.05)
-            image = tf.image.random_saturation(
-                image, SATURATION_MIN, SATURATION_MAX)
+            image = tf.image.random_hue(image, HUE_DELTA)
+            image = tf.image.random_saturation(image, SATURATION_MIN, SATURATION_MAX)
 
             # Brightness and contrast shifts may put pixel values out of
             # the range [0, 1]

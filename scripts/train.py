@@ -10,20 +10,19 @@ from tensorflow.keras.callbacks import *
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
 
-from mobilenet.datasets import load_imagenet
-from mobilenet.models import mobilenet
-from mobilenet.utils import ensure_exists
+from mobilenet.dataset import load_imagenet
+from mobilenet.model import build_mobilenet
 
 
 def train(args):
     tf.random.set_seed(0)
-    ensure_exists(args.checkpoint_dir)
+    _ensure_exists(args.checkpoint_dir)
 
+    # Search for an existing checkpoint
     initial_epoch = 0
     checkpoint = None
     for filename in os.listdir(args.checkpoint_dir):
-        base = path.splitext(path.basename(filename))[0]
-        pieces = base.split('_')
+        pieces = path.splitext(path.basename(filename))[0].split('_')
         if pieces[-1] == 'best':
             continue
         epoch = int(pieces[-1])
@@ -31,6 +30,7 @@ def train(args):
             initial_epoch = epoch
             checkpoint = filename
 
+    # Load or create the model
     if checkpoint is not None:
         model = load_model(path.join(args.checkpoint_dir, checkpoint))
         need_compile = False
@@ -40,42 +40,40 @@ def train(args):
         need_compile = False
         need_learning_rate = True
     else:
-        model = mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
+        model = build_mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
         if args.weight_file is not None:
             model.load_weights(args.weight_file)
         need_compile = True
         need_learning_rate = True
 
-    train_data, train_steps = load_imagenet(
-        'train', tuple(args.size), augment=args.augment)
+    # Load the dataset (train and validation splits)
+    train_data, train_steps = load_imagenet('train', tuple(args.size), augment=not args.no_augment)
     val_data, val_steps = load_imagenet('val', tuple(args.size), augment=False)
 
+    # Prepare the model for training
     if need_compile:
         model.compile(
             optimizer=getattr(tf.keras.optimizers, args.optimizer)(),
             loss='categorical_crossentropy',
             metrics=['accuracy', 'top_k_categorical_accuracy'])
-
     if need_learning_rate:
         if len(args.learning_rates) > 1:
             model.optimizer.learning_rate = PiecewiseConstantDecay(
-                [x * train_steps for x in args.learning_rate_boundaries],
-                args.learning_rates)
+                [x * train_steps for x in args.learning_rate_boundaries], args.learning_rates)
         else:
             model.optimizer.learning_rate = args.learning_rates[0]
 
+    # Set up training callbacks (checkpointing and TensorBoard)
     best_filename = path.join(args.checkpoint_dir, args.name + '_best.h5')
     callbacks = [
         ModelCheckpoint(
-            path.join(args.checkpoint_dir, args.name + '_{epoch:d}.h5'),
-            save_weights_only=False),
-        ModelCheckpoint(
-            best_filename, save_best_only=True, save_weights_only=False)]
+            path.join(args.checkpoint_dir, args.name + '_{epoch:d}.h5'), save_weights_only=False),
+        ModelCheckpoint(best_filename, save_best_only=True, save_weights_only=False)]
     if args.tensorboard_dir != '':
-        ensure_exists(args.tensorboard_dir)
+        _ensure_exists(args.tensorboard_dir)
         now_str = datetime.now().strftime('_%Y-%m-%d_%H-%M-%S')
-        callbacks.append(TensorBoard(
-            log_dir=path.join(args.tensorboard_dir, args.name + now_str)))
+        callbacks.append(
+            TensorBoard(log_dir=path.join(args.tensorboard_dir, args.name + now_str)))
 
     model.fit(
         x=train_data,
@@ -87,22 +85,26 @@ def train(args):
         steps_per_epoch=train_steps,
         validation_steps=val_steps)
 
-    ensure_exists(args.model_dir)
+    # Save the model with the lowest validation loss
+    _ensure_exists(args.model_dir)
     model = load_model(best_filename)
     model.save(path.join(args.model_dir, args.name + '.h5'))
 
     # Remove checkpoints if training completes successfully
     for filename in os.listdir(args.checkpoint_dir):
-        base = path.splitext(path.basename(filename))[0]
-        pieces = base.split('_')
+        pieces = path.splitext(path.basename(filename))[0].split('_')
         if args.name == '_'.join(pieces[:-1]):
             os.remove(path.join(args.checkpoint_dir, filename))
 
 
+def _ensure_exists(dirname):
+    if not path.isdir(dirname):
+        os.makedirs(dirname)
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        add_help=False)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter, add_help=False)
 
     parser.add_argument(
         'name',
@@ -133,40 +135,39 @@ if __name__ == '__main__':
     parser.add_argument(
         '-w', '--weight-file',
         help='A file from which the model weights should be loaded. '
-             'This disables any automatic checkpoint loading. This is '
-             'ignored when training is automatically resumed from a '
-             'checkpoint.')
+             'This is ignored when training is automatically resumed '
+             'from a checkpoint.')
 
     parser.add_argument(
-        '-a', '--augment', action='store_true',
-        help='Apply data augmentation to training images.')
+        '-A', '--no-augment', action='store_true',
+        help='Do not apply data augmentation to training images.')
     parser.add_argument(
-        '-d', '--l2-decay', default=0.0, type=float,
+        '-d', '--l2-decay', default=1e-3, type=float,
         help='The amount of L2 weight decay to add to the loss.')
     parser.add_argument(
-        '-e', '--epochs', default=50, type=int,
+        '-e', '--epochs', default=90, type=int,
         help='The number of training epochs.')
     parser.add_argument(
-        '-l', '--learning-rates', nargs='+', default=[1e-3], type=float,
+        '-l', '--learning-rates', nargs='+', default=[1e-2, 1e-3, 1e-4], type=float,
         help='A list of one or more learning rate values.')
     parser.add_argument(
-        '-L', '--learning-rate-boundaries', nargs='*', default=[], type=int,
+        '-L', '--learning-rate-boundaries', nargs='*', default=[30, 60], type=int,
         help='The boundaries (in units of epochs) at which the '
              'learning rate should be changed. Should contain one '
              'fewer value than -l/--learning-rates.')
     parser.add_argument(
-        '-o', '--optimizer', default='RMSprop',
+        '-o', '--optimizer', default='SGD',
         help='The name of the optimizer (case-sensitive). See the '
              'classes listed in the tf.keras.optimizers documentation '
              'for a list of acceptable values.')
     parser.add_argument(
-        '-s', '--size', nargs=2, default=[224, 224], type=int,
+        '-s', '--size', nargs=2, default=[320, 320], type=int,
         help='The height and width (in that order) to which images '
              'should be resized.')
     parser.add_argument(
-        '-v', '--verbosity', default=1, type=int, choices=[0, 1, 2],
-        help='Information to print during training. 0 = silent, '
-             '1 = progress bar, 2 = one line per epoch.')
+        '-v', '--verbosity', default=2, type=int, choices=[0, 1, 2],
+        help='Information to print during training. 0 = silent, 1 = '
+             'progress bar, 2 = one line per epoch.')
 
     # This strategy splits batches over the available GPUs
     with tf.distribute.MirroredStrategy().scope():
