@@ -12,13 +12,13 @@ Place the downloaded `.tar` files in `~/tensorflow_datasets/downloads/manual` (s
 
 To create the `mobilenet` environment, run:
 ```
-conda env create -f environment.yml
+conda env create -f conda/environment.yml
 ```
 `environment.yml` lists all required Conda and pip packages.
 
 To enable GPU acceleration, instead run:
 ```
-conda env create -f environment_gpu.yml
+conda env create -f conda/environment_gpu.yml
 ```
 This requires that NVIDIA drivers and CUDA 10.1 be installed (see the [TensorFlow GPU guide](https://www.tensorflow.org/install/gpu)).
 
