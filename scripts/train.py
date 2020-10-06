@@ -11,7 +11,7 @@ from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
 
 from mobilenet.dataset import load_imagenet
-from mobilenet.model import build_mobilenet
+from mobilenet.model import mobilenet
 
 
 def train(args):
@@ -40,7 +40,7 @@ def train(args):
         need_compile = False
         need_learning_rate = True
     else:
-        model = build_mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
+        model = mobilenet(input_size=tuple(args.size), l2_decay=args.l2_decay)
         if args.weight_file is not None:
             model.load_weights(args.weight_file)
         need_compile = True

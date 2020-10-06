@@ -26,7 +26,7 @@ After creating one of the above environments, activate it with `conda activate m
 
 ## Python API
 
-The Python API is defined in the `mobilenet` package and contains two functions: `dataset.load_imagenet` and `model.build_mobilenet`. Details of arguments and outputs are described in the docstrings.
+The Python API is defined in the `mobilenet` package and contains two functions: `dataset.load_imagenet` and `model.mobilenet`. Details of arguments and outputs are described in the docstrings.
 
 Example usage of `dataset.load_imagenet`:
 ```python
@@ -39,12 +39,12 @@ data, n_batches = load_imagenet(
     augment=True)
 ```
 
-Example usage of `model.build_mobilenet`:
+Example usage of `model.mobilenet`:
 ```python
-from mobilenet.model import build_mobilenet
+from mobilenet.model import mobilenet
 
 # "model" is a tf.keras.Sequential model
-model = build_mobilenet(input_size=(320, 320), l2_decay=1e-3)
+model = mobilenet(input_size=(320, 320), l2_decay=1e-3)
 ```
 
 ## Command-Line Interface

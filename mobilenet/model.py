@@ -5,7 +5,7 @@ from tensorflow.keras.regularizers import l2
 from mobilenet.dataset import N_CLASSES
 
 
-def build_mobilenet(input_size=(320, 320), l2_decay=0.0):
+def mobilenet(input_size=(320, 320), l2_decay=0.0):
     """
     Builds the MobileNet model.
 
