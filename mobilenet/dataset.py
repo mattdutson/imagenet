@@ -15,7 +15,7 @@ SATURATION_MIN = 0.8
 SATURATION_MAX = 1.0 / 0.8
 
 
-def load_imagenet(split, size=(320, 320), augment=False):
+def imagenet(split, size=(320, 320), augment=False):
     """
     Loads a split of the ImageNet dataset.
 

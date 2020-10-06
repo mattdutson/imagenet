@@ -5,12 +5,12 @@ import argparse
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
-from mobilenet.dataset import load_imagenet
+from mobilenet.dataset import imagenet
 
 
 def test(args):
     model = load_model(args.model_file)
-    data, steps = load_imagenet('test', tuple(args.size))
+    data, steps = imagenet('test', tuple(args.size))
     model.evaluate(x=data, steps=steps)
 
 

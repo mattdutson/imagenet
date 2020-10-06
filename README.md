@@ -26,14 +26,14 @@ After creating one of the above environments, activate it with `conda activate m
 
 ## Python API
 
-The Python API is defined in the `mobilenet` package and contains two functions: `dataset.load_imagenet` and `model.mobilenet`. Details of arguments and outputs are described in the docstrings.
+The Python API is defined in the `mobilenet` package and contains two functions: `dataset.imagenet` and `model.mobilenet`. Details of arguments and outputs are described in the docstrings.
 
-Example usage of `dataset.load_imagenet`:
+Example usage of `dataset.imagenet`:
 ```python
-from mobilenet.dataset import load_imagenet
+from mobilenet.dataset import imagenet
 
 # "data" is a tf.data.Dataset, "n_batches" is an integer
-data, n_batches = load_imagenet(
+data, n_batches = imagenet(
     'train',  # Can be 'train', 'test', or 'val'
     size=(320, 320),
     augment=True)

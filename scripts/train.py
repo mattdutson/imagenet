@@ -10,7 +10,7 @@ from tensorflow.keras.callbacks import *
 from tensorflow.keras.models import load_model
 from tensorflow.keras.optimizers.schedules import PiecewiseConstantDecay
 
-from mobilenet.dataset import load_imagenet
+from mobilenet.dataset import imagenet
 from mobilenet.model import mobilenet
 
 
@@ -47,8 +47,8 @@ def train(args):
         need_learning_rate = True
 
     # Load the dataset (train and validation splits)
-    train_data, train_steps = load_imagenet('train', tuple(args.size), augment=not args.no_augment)
-    val_data, val_steps = load_imagenet('val', tuple(args.size), augment=False)
+    train_data, train_steps = imagenet('train', tuple(args.size), augment=not args.no_augment)
+    val_data, val_steps = imagenet('val', tuple(args.size), augment=False)
 
     # Prepare the model for training
     if need_compile:

@@ -7,7 +7,7 @@ import os.path as path
 import numpy as np
 import tensorflow as tf
 
-from mobilenet.dataset import load_imagenet
+from mobilenet.dataset import imagenet
 
 
 def save_examples(args):
@@ -15,7 +15,7 @@ def save_examples(args):
     if not path.isdir(args.examples_dir):
         os.makedirs(args.examples_dir)
 
-    data, _ = load_imagenet(args.split, tuple(args.size), augment=args.augment)
+    data, _ = imagenet(args.split, tuple(args.size), augment=args.augment)
     for i, item in enumerate(data.unbatch()):
         if i >= args.n_examples:
             break
