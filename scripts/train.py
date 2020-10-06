@@ -14,7 +14,7 @@ from mobilenet.dataset import imagenet
 from mobilenet.model import mobilenet
 
 
-def train(args):
+def main(args):
     tf.random.set_seed(0)
     _ensure_exists(args.checkpoint_dir)
 
@@ -172,4 +172,4 @@ if __name__ == '__main__':
 
     # This strategy splits batches over the available GPUs
     with tf.distribute.MirroredStrategy().scope():
-        train(parser.parse_args())
+        main(parser.parse_args())

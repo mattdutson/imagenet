@@ -10,7 +10,7 @@ import tensorflow as tf
 from mobilenet.dataset import imagenet
 
 
-def save_examples(args):
+def main(args):
     tf.random.set_seed(0)
     if not path.isdir(args.examples_dir):
         os.makedirs(args.examples_dir)
@@ -55,4 +55,4 @@ if __name__ == '__main__':
         '-S', '--split', default='train', choices=['train', 'val', 'test'],
         help='The dataset split from which examples should be pulled.')
 
-    save_examples(parser.parse_args())
+    main(parser.parse_args())

@@ -8,7 +8,7 @@ from tensorflow.keras.models import load_model
 from mobilenet.dataset import imagenet
 
 
-def test(args):
+def main(args):
     model = load_model(args.model_file)
     data, steps = imagenet('test', tuple(args.size))
     model.evaluate(x=data, steps=steps)
@@ -33,4 +33,4 @@ if __name__ == '__main__':
 
     # This strategy splits batches over the available GPUs
     with tf.distribute.MirroredStrategy().scope():
-        test(parser.parse_args())
+        main(parser.parse_args())
