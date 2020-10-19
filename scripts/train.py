@@ -16,9 +16,9 @@ from mobilenet.model import mobilenet
 
 def main(args):
     tf.random.set_seed(0)
-    _ensure_exists(args.checkpoint_dir)
 
     # Search for an existing checkpoint
+    _ensure_exists(args.checkpoint_dir)
     initial_epoch = 0
     checkpoint = None
     for filename in os.listdir(args.checkpoint_dir):
@@ -66,9 +66,8 @@ def main(args):
     # Set up training callbacks (checkpointing and TensorBoard)
     best_filename = path.join(args.checkpoint_dir, args.name + '_best.h5')
     callbacks = [
-        ModelCheckpoint(
-            path.join(args.checkpoint_dir, args.name + '_{epoch:d}.h5'), save_weights_only=False),
-        ModelCheckpoint(best_filename, save_best_only=True, save_weights_only=False)]
+        ModelCheckpoint(path.join(args.checkpoint_dir, args.name + '_{epoch:d}.h5')),
+        ModelCheckpoint(best_filename, save_best_only=True)]
     if args.tensorboard_dir != '':
         _ensure_exists(args.tensorboard_dir)
         now_str = datetime.now().strftime('_%Y-%m-%d_%H-%M-%S')
@@ -146,13 +145,13 @@ if __name__ == '__main__':
         help='The amount of L2 weight decay to add to the loss. '
              'Applies only to kernels, not biases.')
     parser.add_argument(
-        '-e', '--epochs', default=90, type=int,
+        '-e', '--epochs', default=75, type=int,
         help='The number of training epochs.')
     parser.add_argument(
         '-l', '--learning-rates', nargs='+', default=[1e-2, 1e-3, 1e-4], type=float,
         help='A list of one or more learning rate values.')
     parser.add_argument(
-        '-L', '--learning-rate-boundaries', nargs='*', default=[30, 60], type=int,
+        '-L', '--learning-rate-boundaries', nargs='*', default=[25, 50], type=int,
         help='The boundaries (in units of epochs) at which the '
              'learning rate should be changed. Should contain one '
              'fewer value than -l/--learning-rates.')
