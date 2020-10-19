@@ -59,7 +59,8 @@ def main(args):
     if need_learning_rate:
         if len(args.learning_rates) > 1:
             model.optimizer.learning_rate = PiecewiseConstantDecay(
-                [x * train_steps for x in args.learning_rate_boundaries], args.learning_rates)
+                [x * train_steps for x in args.learning_rate_boundaries],
+                args.learning_rates)
         else:
             model.optimizer.learning_rate = args.learning_rates[0]
 
@@ -71,8 +72,8 @@ def main(args):
     if args.tensorboard_dir != '':
         _ensure_exists(args.tensorboard_dir)
         now_str = datetime.now().strftime('_%Y-%m-%d_%H-%M-%S')
-        callbacks.append(
-            TensorBoard(log_dir=path.join(args.tensorboard_dir, args.name + now_str)))
+        callbacks.append(TensorBoard(
+            log_dir=path.join(args.tensorboard_dir, args.name + now_str)))
 
     model.fit(
         x=train_data,
@@ -103,7 +104,8 @@ def _ensure_exists(dirname):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, add_help=False)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        add_help=False)
 
     parser.add_argument(
         'name',
@@ -148,10 +150,12 @@ if __name__ == '__main__':
         '-e', '--epochs', default=75, type=int,
         help='The number of training epochs.')
     parser.add_argument(
-        '-l', '--learning-rates', nargs='+', default=[1e-2, 1e-3, 1e-4], type=float,
+        '-l', '--learning-rates',
+        nargs='+', default=[1e-2, 1e-3, 1e-4], type=float,
         help='A list of one or more learning rate values.')
     parser.add_argument(
-        '-L', '--learning-rate-boundaries', nargs='*', default=[25, 50], type=int,
+        '-L', '--learning-rate-boundaries',
+        nargs='*', default=[25, 50], type=int,
         help='The boundaries (in units of epochs) at which the '
              'learning rate should be changed. Should contain one '
              'fewer value than -l/--learning-rates.')

@@ -27,7 +27,8 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter, add_help=False)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        add_help=False)
 
     parser.add_argument(
         '-h', '--help', action='help',
@@ -52,7 +53,8 @@ if __name__ == '__main__':
         help='The height and width (in that order) to which images '
              'should be resized.')
     parser.add_argument(
-        '-S', '--split', default='train', choices=['train', 'val', 'test'],
+        '-S', '--split',
+        default='train', choices=['train', 'val', 'test'],
         help='The dataset split from which examples should be pulled.')
 
     main(parser.parse_args())
