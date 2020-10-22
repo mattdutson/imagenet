@@ -5,6 +5,7 @@ import os
 import os.path as path
 from datetime import datetime
 
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.callbacks import *
 from tensorflow.keras.models import load_model
@@ -22,13 +23,21 @@ def main(args):
     initial_epoch = 0
     checkpoint = None
     for filename in os.listdir(args.checkpoint_dir):
-        pieces = path.splitext(path.basename(filename))[0].split('_')
-        if pieces[-1] == 'best':
+        pieces = path.splitext(filename)[0].split('_')
+        if args.name != '_'.join(pieces[:-1]):
             continue
-        epoch = int(pieces[-1])
-        if args.name == '_'.join(pieces[:-1]) and epoch > initial_epoch:
-            initial_epoch = epoch
-            checkpoint = filename
+        if pieces[-1] == 'best':
+            # Don't overwrite any existing best model
+            i = 0
+            base = path.join(args.checkpoint_dir, '_'.join(pieces) + '{}.h5')
+            while path.exists(base.format(i)):
+                i += 1
+            os.rename(base.format(''), base.format(i))
+        elif 'best' not in pieces[-1]:
+            epoch = int(pieces[-1])
+            if epoch > initial_epoch:
+                initial_epoch = epoch
+                checkpoint = filename
 
     # Load or create the model
     if checkpoint is not None:
@@ -75,26 +84,30 @@ def main(args):
         callbacks.append(TensorBoard(
             log_dir=path.join(args.tensorboard_dir, args.name + now_str)))
 
-    model.fit(
-        x=train_data,
-        epochs=args.epochs,
-        verbose=args.verbosity,
-        callbacks=callbacks,
-        validation_data=val_data,
-        initial_epoch=initial_epoch,
-        steps_per_epoch=train_steps,
-        validation_steps=val_steps)
+    model.fit(x=train_data,
+              epochs=args.epochs,
+              verbose=args.verbosity,
+              callbacks=callbacks,
+              validation_data=val_data,
+              initial_epoch=initial_epoch,
+              steps_per_epoch=train_steps,
+              validation_steps=val_steps)
 
-    # Save the model with the lowest validation loss
+    # Finalize and clean up
     _ensure_exists(args.model_dir)
-    model = load_model(best_filename)
-    model.save(path.join(args.model_dir, args.name + '.h5'))
-
-    # Remove checkpoints if training completes successfully
+    best_loss = np.inf
     for filename in os.listdir(args.checkpoint_dir):
-        pieces = path.splitext(path.basename(filename))[0].split('_')
-        if args.name == '_'.join(pieces[:-1]):
-            os.remove(path.join(args.checkpoint_dir, filename))
+        pieces = path.splitext(filename)[0].split('_')
+        if args.name != '_'.join(pieces[:-1]):
+            continue
+        if 'best' in pieces[-1]:
+            # Is this the best of the "best" models?
+            model = load_model(path.join(args.checkpoint_dir, filename))
+            loss = model.evaluate(x=val_data, steps=val_steps)[0]
+            if loss < best_loss:
+                best_loss = loss
+                model.save(path.join(args.model_dir, args.name + '.h5'))
+        os.remove(path.join(args.checkpoint_dir, filename))
 
 
 def _ensure_exists(dirname):
