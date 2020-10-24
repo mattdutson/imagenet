@@ -59,20 +59,19 @@ Note that the working directory is the parent directory of `scripts`; this is re
 
 ## Commit Guidelines
 
-Prepend a flag to each commit indicating the type of change which occurred.
-Possible values include:
+Prepend a flag, followed by the `|` symbol, to each commit indicating the type of change. Possible flag values include:
 
- - `[A]` Addition of new features
- - `[D]` Documentation
- - `[E]` Change to experiment scripts
- - `[F]` Bug fixes
- - `[M]` Miscellaneous or minor modifications
- - `[R]` Refactoring or restructuring
- - `[S]` Style or formatting improvements
- - `[T]` Changes to unit tests
- - `[U]` Update to dependencies
+ - `A` Addition of new features
+ - `D` Documentation
+ - `E` Change to experiment scripts
+ - `F` Bug fixes
+ - `M` Miscellaneous or minor modifications
+ - `R` Refactoring or restructuring
+ - `S` Style or formatting improvements
+ - `T` Changes to unit tests
+ - `U` Update to dependencies
 
 If there are multiple applicable flags, separate them with commas, for example
-`[T,R]`.
+`T,R |`.
 
 As a general rule, don't commit experiment scripts until the experiment is completed.
